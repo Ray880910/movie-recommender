@@ -1,0 +1,20 @@
+# 使用官方 Python 映像
+FROM python:3.11-slim
+
+# 設定工作目錄
+WORKDIR /app
+
+# 複製 requirements.txt
+COPY requirements.txt .
+
+# 安裝套件
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 複製所有檔案
+COPY . .
+
+# 設定環境變數（避免 Python buffer）
+ENV PYTHONUNBUFFERED=1
+
+# 啟動 FastAPI
+CMD ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000"]
