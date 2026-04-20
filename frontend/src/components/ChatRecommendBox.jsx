@@ -10,7 +10,7 @@ function ChatRecommendBox({
         className="chat-input"
         value={chatMessage}
         onChange={(e) => setChatMessage(e.target.value)}
-        placeholder="例如：我想看像 Inception 的電影，或推薦溫馨的動畫電影"
+        placeholder="例如：我想看溫馨的動畫電影，或是想看燒腦的科幻驚悚片"
         rows={4}
       />
       <button

@@ -4,12 +4,12 @@ function ChatRecommendationSection({ chatResult }) {
   return (
     <div style={{ marginTop: "20px" }}>
       <div className="section-header">
-        <h2>AI 推薦結果</h2>
+        <h2>推薦結果</h2>
         <span>{chatResult.recommendations.length} 筆</span>
       </div>
 
       {chatResult.recommendations.length === 0 ? (
-        <div className="empty-box">目前沒有 AI 推薦結果</div>
+        <div className="empty-box">目前沒有推薦結果</div>
       ) : (
         <div className="recommendation-list">
           {chatResult.recommendations.map((movie, index) => (

@@ -112,7 +112,7 @@ def process_movies(input_csv: str, output_csv: str, limit: int | None = None):
             "overview": overview
         })
 
-        # 避免打爆 API（很重要🔥）
+        # 避免打爆 API
         time.sleep(0.2)
 
     result_df = pd.DataFrame(results)

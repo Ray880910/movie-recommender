@@ -4,3 +4,5 @@ __pycache__/
 *.py[cod]
 .DS_Store
 .env
+data/movies_with_embeddings.csv
+data/movies_with_documents.csv
