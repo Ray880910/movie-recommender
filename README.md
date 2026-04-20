@@ -1,30 +1,22 @@
 Features:
 
-Traditional Recommendation
-	•	Search movies by title
-	•	Click a movie to get recommendations
-	•	Hybrid recommendation system:
-	•	Collaborative Filtering
-	•	Content-Based Filtering
-
-⸻
-
-AI-powered Recommendation (LLM)
+🎬 Semantic Recommendation (Core)
 
 Users can input natural language:
-	•	“I want movies like Inception”
-	•	“Recommend warm animated movies”
+	•	“I want a warm animated movie about friendship”
+	•	“Recommend emotional drama movies”
 	•	“Suggest mind-bending sci-fi films”
 
 The system will:
-	1.	Use LLM to extract:
-	•	Reference movies
-	•	Genres
-	•	Mood
-	2.	Automatically choose recommendation strategy:
-	•	Reference-based → Hybrid recommendation
-	•	Genre-based → Fallback recommendation
-	•	Default → General recommendation
+	1.	Convert user input into embeddings
+	2.	Perform semantic search against movie descriptions
+	3.	Apply a two-stage recommendation pipeline:
+		•	Semantic Retrieval
+		•	Find top-N most similar movies using cosine similarity
+		•	Reranking (Popularity-aware)
+			•	Semantic similarity
+			•	Average rating
+			•	Rating count (popularity)
 
 ⸻
 
@@ -33,14 +25,18 @@ Tech Stack
 Backend
 	•	FastAPI
 	•	Python
-	•	OpenAI API (LLM)
-	•	Pandas
+	•	OpenAI API (Embeddings)
+	•	Pandas/NumPy
 
 Recommendation System
-	•	Collaborative Filtering
-	•	Content-Based Filtering
-	•	Hybrid Recommendation
-	•	Popularity-aware ranking (rating_count + avg_rating)
+	•	Semantic Search (Embedding-based)
+	•	Cosine Similarity
+	•	Two-stage pipeline:
+		•	Retrieval
+		•	Reranking
+	•	Popularity-aware ranking:
+		•	avg_rating
+		•	rating_count (log-scaled)
 
 Frontend
 	•	React (Vite)
