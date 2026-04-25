@@ -1,24 +1,22 @@
-function ChatRecommendBox({
-  chatMessage,
-  setChatMessage,
-  onSubmit,
-  loading,
-}) {
+function ChatRecommendBox({ chatMessage, setChatMessage, onSubmit, loading }) {
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      onSubmit();
+    }
+  };
+
   return (
-    <div className="chat-panel">
+    <div className="chat-box">
       <textarea
-        className="chat-input"
         value={chatMessage}
         onChange={(e) => setChatMessage(e.target.value)}
-        placeholder="例如：我想看溫馨的動畫電影，或是想看燒腦的科幻驚悚片"
+        onKeyDown={handleKeyDown}
+        placeholder="例如：我想看溫馨的動畫電影。下一輪可以再說：更冒險一點，不要太悲傷。"
         rows={4}
       />
-      <button
-        className="search-button"
-        onClick={onSubmit}
-        disabled={loading}
-      >
-        {loading ? "AI 推薦中..." : "讓 AI 推薦"}
+      <button onClick={onSubmit} disabled={loading}>
+        {loading ? "推薦中..." : "送出"}
       </button>
     </div>
   );

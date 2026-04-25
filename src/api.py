@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.semantic_search import load_semantic_base, semantic_recommend
 
@@ -13,13 +13,17 @@ from src.semantic_search import load_semantic_base, semantic_recommend
 
 class ChatRecommendRequest(BaseModel):
     message: str
+    history: List[str] = Field(default_factory=list)
+    shown_movie_ids: List[int] = Field(default_factory=list)
+    likes: List[str] = Field(default_factory=list)
+    dislikes: List[str] = Field(default_factory=list)
 
 
 class ParsedPreferences(BaseModel):
-    reference_titles: List[str] = []
-    genres: List[str] = []
-    mood: List[str] = []
-    exclude: List[str] = []
+    reference_titles: List[str] = Field(default_factory=list)
+    genres: List[str] = Field(default_factory=list)
+    mood: List[str] = Field(default_factory=list)
+    exclude: List[str] = Field(default_factory=list)
 
 
 class ChatRecommendation(BaseModel):
@@ -74,7 +78,11 @@ def root():
 @app.post("/chat-recommend", response_model=ChatRecommendResponse)
 def chat_recommend(request: ChatRecommendRequest):
     recommendations = semantic_recommend(
-        query=request.message,
+        current_message=request.message,
+        history=request.history,
+        shown_movie_ids=request.shown_movie_ids,
+        likes=request.likes,
+        dislikes=request.dislikes,
         df=semantic_movies_df,
         top_k=5,
         semantic_top_n=300,
@@ -85,17 +93,17 @@ def chat_recommend(request: ChatRecommendRequest):
     )
 
     explanation = (
-        "系統根據你的自然語言描述進行語意搜尋，"
-        "先找出語意最接近的電影，再結合評分與觀看人數進行排序。"
+        "系統會根據目前輸入、歷史偏好與排除條件進行語意搜尋，"
+        "並排除已推薦過的電影，再結合評分與觀看數進行排序。"
     )
 
     return {
         "user_message": request.message,
         "parsed_preferences": {
             "reference_titles": [],
-            "genres": [],
+            "genres": request.likes,
             "mood": [],
-            "exclude": [],
+            "exclude": request.dislikes,
         },
         "seed_movie": None,
         "recommendations": recommendations,
