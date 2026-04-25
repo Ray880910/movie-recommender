@@ -82,20 +82,6 @@ def load_semantic_base(
     return df
 
 
-def is_strong_preference_shift(message: str) -> bool:
-    lowered = message.lower()
-
-    shift_keywords = [
-        "instead",
-        "actually",
-        "rather",
-        "change",
-        "different",
-    ]
-
-    return any(keyword in lowered for keyword in shift_keywords)
-
-
 def build_preference_text(likes: List[str], dislikes: List[str]) -> str:
     parts = []
 
@@ -135,6 +121,7 @@ def build_query_embedding(
     current_message: str,
     likes: List[str],
     dislikes: List[str],
+    shift_type: str = "unknown",
 ) -> np.ndarray:
     current_embedding = normalize_vector(get_embedding(current_message))
     history_embedding = build_history_embedding_with_decay(history)
@@ -146,15 +133,35 @@ def build_query_embedding(
         else None
     )
 
-    # 權重先用 heuristic，之後再調
-    if is_strong_preference_shift(current_message):
+    if shift_type == "strong_shift":
         current_weight = 0.7
         history_weight = 0.2
         preference_weight = 0.1
+
+    elif shift_type == "supplement":
+        current_weight = 0.45
+        history_weight = 0.30
+        preference_weight = 0.25
+
+    elif shift_type == "minor_refinement":
+        current_weight = 0.40
+        history_weight = 0.35
+        preference_weight = 0.25
+
+    elif shift_type == "negative_constraint":
+        current_weight = 0.45
+        history_weight = 0.25
+        preference_weight = 0.30
+
+    elif shift_type == "new_preference":
+        current_weight = 0.60
+        history_weight = 0.20
+        preference_weight = 0.20
+
     else:
-        current_weight = 0.5
-        history_weight = 0.3
-        preference_weight = 0.2
+        current_weight = 0.50
+        history_weight = 0.30
+        preference_weight = 0.20
 
     vectors = []
     vectors.append(current_weight * current_embedding)
@@ -175,6 +182,7 @@ def semantic_recommend(
     shown_movie_ids: List[int],
     likes: List[str],
     dislikes: List[str],
+    shift_type: str,
     df: pd.DataFrame,
     top_k: int = 5,
     semantic_top_n: int = 300,
@@ -189,6 +197,7 @@ def semantic_recommend(
         current_message=current_message,
         likes=likes,
         dislikes=dislikes,
+        shift_type=shift_type,
     )
 
     semantic_scores = []

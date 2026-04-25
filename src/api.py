@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from src.semantic_search import load_semantic_base, semantic_recommend
-
+from src.preference_update import update_preferences
 
 # ==============================================
 # Pydantic Models
@@ -76,13 +76,29 @@ def root():
 
 
 @app.post("/chat-recommend", response_model=ChatRecommendResponse)
+
 def chat_recommend(request: ChatRecommendRequest):
+    
+    
+    updated_preferences = update_preferences(
+        message=request.message,
+        current_likes=request.likes,
+        current_dislikes=request.dislikes,
+    )
+
+    updated_likes = updated_preferences["likes"]
+    updated_dislikes = updated_preferences["dislikes"]
+    shift_type = updated_preferences.get("shift_type", "unknown")
+    update_source = updated_preferences.get("update_source", "unknown")
+    
+
     recommendations = semantic_recommend(
         current_message=request.message,
         history=request.history,
         shown_movie_ids=request.shown_movie_ids,
-        likes=request.likes,
-        dislikes=request.dislikes,
+        likes=updated_likes,
+        dislikes=updated_dislikes,
+        shift_type=shift_type,
         df=semantic_movies_df,
         top_k=5,
         semantic_top_n=300,
@@ -91,6 +107,7 @@ def chat_recommend(request: ChatRecommendRequest):
         rating_weight=0.1,
         count_weight=0.2,
     )
+
 
     explanation = (
         "系統會根據目前輸入、歷史偏好與排除條件進行語意搜尋，"
@@ -101,9 +118,9 @@ def chat_recommend(request: ChatRecommendRequest):
         "user_message": request.message,
         "parsed_preferences": {
             "reference_titles": [],
-            "genres": request.likes,
-            "mood": [],
-            "exclude": request.dislikes,
+            "genres": updated_likes,
+            "mood": [shift_type, update_source],
+            "exclude": updated_dislikes,
         },
         "seed_movie": None,
         "recommendations": recommendations,
