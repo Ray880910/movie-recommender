@@ -29,8 +29,15 @@ class ParsedPreferences(BaseModel):
 class ChatRecommendation(BaseModel):
     movieId: int
     title: str
+    title_zh: Optional[str] = None
     genres: str
     final_score: Optional[float] = None
+    release_year: Optional[int] = None
+    vote_average: Optional[float] = None
+    vote_count: Optional[int] = None
+    popularity: Optional[float] = None
+    director: Optional[str] = None
+    top_cast: Optional[str] = None
 
 
 class ChatRecommendResponse(BaseModel):
@@ -102,10 +109,11 @@ def chat_recommend(request: ChatRecommendRequest):
         df=semantic_movies_df,
         top_k=5,
         semantic_top_n=300,
-        min_rating_count=5,
+        min_vote_count=100,
         semantic_weight=0.7,
-        rating_weight=0.1,
-        count_weight=0.2,
+        vote_weight=0.1,
+        count_weight=0.15,
+        popularity_weight=0.05,
     )
 
 
